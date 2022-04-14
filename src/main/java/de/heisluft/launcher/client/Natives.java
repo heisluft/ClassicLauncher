@@ -8,9 +8,11 @@ enum Natives {
   MAC("/libjinput-osx.jnilib", "/liblwjgl.dylib", "/libopenal.dylib");
 
   private final String[] baseNames;
+  public final int fileCount;
 
   Natives(String... baseNames) {
     this.baseNames = baseNames;
+    fileCount = baseNames.length;
   }
 
   public URL[] getURLs() {

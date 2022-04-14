@@ -1,6 +1,7 @@
 package de.heisluft.launcher.client;
 
 import de.heisluft.launcher.ClassicTweaker;
+import de.heisluft.launcher.common.Util;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -32,30 +33,26 @@ public class LaunchManipulator {
 
   private static final Logger LOGGER = LogManager.getLogger("LaunchManipulator");
 
-  public static void main(String[] args) throws Exception {
-
+  private static void setupLibraries() throws IOException {
     File libsDir = new File(ClassicTweaker.minecraftHome, "libs");
-    if(!libsDir.isDirectory()) {
-      libsDir.mkdirs();
-      String osName = System.getProperty("os.name").toLowerCase();
-      Natives natives = osName.contains("win") ? Natives.WIN : osName.contains("mac") ? Natives.MAC : Natives.LINUX;
+    if(!libsDir.isDirectory()) libsDir.mkdirs();
+    File[] children = libsDir.listFiles();
+    if(children == null) throw new IllegalStateException("cannot traverse libs path, aborting");
+    String osName = System.getProperty("os.name").toLowerCase();
+    Natives natives = osName.contains("win") ? Natives.WIN : osName.contains("mac") ? Natives.MAC : Natives.LINUX;
+    if(children.length < natives.fileCount){
       for(URL url : natives.getURLs()) {
         String urlString = url.toString();
-        InputStream is = url.openStream();
-        FileOutputStream fos = new FileOutputStream(new File(libsDir, urlString.substring(urlString.lastIndexOf('/'))));
-        byte[] buf = new byte[4096];
-        int lastRead;
-        while((lastRead = is.read(buf)) != -1) {
-          fos.write(buf, 0, lastRead);
-        }
-        is.close();
-        fos.close();
+        Util.copyStream(url.openStream(), new FileOutputStream(new File(libsDir, urlString.substring(urlString.lastIndexOf('/')))), 4096);
       }
     }
     String libspath = libsDir.getAbsolutePath();
     System.setProperty("org.lwjgl.librarypath", libspath);
     System.setProperty("net.java.games.input.librarypath", libspath);
+  }
 
+  public static void main(String[] args) throws Exception {
+    setupLibraries();
     Class<?> clazz;
 
     try {
