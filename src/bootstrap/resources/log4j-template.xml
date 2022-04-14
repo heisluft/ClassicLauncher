@@ -2,7 +2,7 @@
 <Configuration status="WARN" packages="net.minecraft,com.mojang">
     <Appenders>
         <Console name="SysOut" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n" />
+            <PatternLayout pattern="%style{[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n}{green}" />
         </Console>
         <RollingRandomAccessFile name="File" fileName="${gameDir}/logs/latest.log" filePattern="${gameDir}/logs/%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n" />

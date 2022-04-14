@@ -1,5 +1,7 @@
 package de.heisluft.launcher.common;
 
+import org.apache.logging.log4j.Level;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,5 +20,14 @@ public class Util {
     }
     is.close();
     os.close();
+  }
+  public static Level jul2log4j(java.util.logging.Level level) {
+    if(level == java.util.logging.Level.SEVERE)return Level.ERROR;
+    if(level == java.util.logging.Level.WARNING) return Level.WARN;
+    if(level == java.util.logging.Level.INFO) return Level.INFO;
+    if(level == java.util.logging.Level.CONFIG) return Level.INFO;
+    if(level == java.util.logging.Level.FINE) return Level.DEBUG;
+    if(level == java.util.logging.Level.ALL) return Level.ALL;
+    return Level.TRACE;
   }
 }
