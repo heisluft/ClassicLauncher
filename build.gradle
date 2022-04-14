@@ -19,15 +19,18 @@ static def getOrCreate(SourceSetContainer container, String name) {
   }
 }
 
-getOrCreate(sourceSets, 'bootstrap').runtimeClasspath += sourceSets.getByName('main').output
-configurations.getByName('bootstrapImplementation').extendsFrom(configurations.getByName('implementation'))
+getOrCreate(sourceSets, 'common')
+getOrCreate(sourceSets, 'bootstrap')
 
+configurations.getByName('bootstrapImplementation').extendsFrom(configurations.getByName('implementation'))
 
 tasks.withType(JavaCompile) {
   options.encoding 'UTF-8'
 }
 
 dependencies {
+  implementation sourceSets.getByName('common').output
+  bootstrapRuntimeOnly sourceSets.getByName('main').output
   implementation rootProject
   implementation "org.ow2.asm:asm-tree:7.3.1"
   implementation "org.apache.logging.log4j:log4j-core:2.17.1"
