@@ -1,4 +1,4 @@
-package de.heisluft.mcbootstrap;
+package de.heisluft.launcher.bootstrap;
 
 import de.heisluft.launcher.common.Util;
 import net.minecraft.launchwrapper.Launch;
@@ -8,8 +8,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.util.logging.LogManager;
 
 public class PreLaunch {
   public static void main(String[] args) throws IOException {
@@ -56,6 +55,8 @@ public class PreLaunch {
     Util.copyStream(PreLaunch.class.getResourceAsStream("/log4j-template.xml"), bos, 4096);
     byte[] transformed = bos.toString("utf-8").replace("${gameDir}", gameDir).getBytes("utf-8");
     Configurator.initialize(null, new ConfigurationSource(new ByteArrayInputStream(transformed)));
+    LogManager.getLogManager().readConfiguration(PreLaunch.class.getResourceAsStream("/logging.properties"));
+
     Launch.main(newArgs);
   }
 }
