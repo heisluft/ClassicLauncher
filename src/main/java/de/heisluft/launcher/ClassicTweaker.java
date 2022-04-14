@@ -1,7 +1,6 @@
 package de.heisluft.launcher;
 
 import net.minecraft.launchwrapper.ITweaker;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import java.io.File;
@@ -27,9 +26,6 @@ public class ClassicTweaker implements ITweaker {
   @Override
   public void injectIntoClassLoader(LaunchClassLoader launchClassLoader) {
     if(!isServer) {
-      String libspath = new File("libs").getAbsolutePath();
-      System.setProperty("org.lwjgl.librarypath", libspath);
-      System.setProperty("net.java.games.input.librarypath", libspath);
       launchClassLoader.registerTransformer("de.heisluft.launcher.client.AssetReflux");
       launchClassLoader.registerTransformer("de.heisluft.launcher.client.URLTransformer");
       launchClassLoader.registerTransformer("de.heisluft.launcher.client.GameDirChanger");
