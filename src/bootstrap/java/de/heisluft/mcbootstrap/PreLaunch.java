@@ -1,9 +1,18 @@
 package de.heisluft.mcbootstrap;
 
+import de.heisluft.launcher.common.Util;
 import net.minecraft.launchwrapper.Launch;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 
 public class PreLaunch {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     boolean hasTweakClass = false, hasAssetsDir = false, isServer = false; String gameDir = null;
     for(int i = 0; i < args.length; i++) {
       String arg = args[i];
@@ -23,29 +32,30 @@ public class PreLaunch {
       }
     }
     boolean noNewAssetsDir = isServer || hasAssetsDir;
-
-    if(gameDir != null && hasTweakClass && noNewAssetsDir) {
-      Launch.main(args);
-      return;
-    }
     int difference = (hasTweakClass ? 0 : 2) + (gameDir != null ? 0 : 2) + (noNewAssetsDir ? 0 : 2);
-
-    String[] newArgs = new String[args.length + difference];
-    int i = 0;
-    if(!hasTweakClass) {
-      newArgs[i++] = "--tweakClass";
-      newArgs[i++] = "de.heisluft.launcher.ClassicTweaker";
+    String[] newArgs = difference == 0 ? args : new String[args.length + difference];
+    if(difference != 0) {
+      int i = 0;
+      if(!hasTweakClass) {
+        newArgs[i++] = "--tweakClass";
+        newArgs[i++] = "de.heisluft.launcher.ClassicTweaker";
+      }
+      if(gameDir == null) {
+        newArgs[i++] = "--gameDir";
+        newArgs[i++] = gameDir = isServer ? "runServer/" : "run/";
+      }
+      if(!noNewAssetsDir) {
+        newArgs[i++] = "--assetsDir";
+        String unixStyleGameDir = gameDir.replace('\\', '/');
+        newArgs[i] =
+            unixStyleGameDir + (unixStyleGameDir.endsWith("/") ? "resources/" : "/resources/");
+      }
+      System.arraycopy(args, 0, newArgs, difference, args.length);
     }
-    if(gameDir == null) {
-      newArgs[i++] = "--gameDir";
-      newArgs[i++] = gameDir = isServer ? "runServer/" : "run/";
-    }
-    if(!noNewAssetsDir) {
-      newArgs[i++] = "--assetsDir";
-      String unixStyleGameDir = gameDir.replace('\\', '/');
-      newArgs[i] = unixStyleGameDir + (unixStyleGameDir.endsWith("/") ? "resources/" : "/resources/");
-    }
-    System.arraycopy(args, 0, newArgs, difference, args.length);
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    Util.copyStream(PreLaunch.class.getResourceAsStream("/log4j-template.xml"), bos, 4096);
+    byte[] transformed = bos.toString("utf-8").replace("${gameDir}", gameDir).getBytes("utf-8");
+    Configurator.initialize(null, new ConfigurationSource(new ByteArrayInputStream(transformed)));
     Launch.main(newArgs);
   }
 }
