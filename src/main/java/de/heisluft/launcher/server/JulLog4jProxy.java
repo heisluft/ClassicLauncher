@@ -1,7 +1,6 @@
 package de.heisluft.launcher.server;
 
 import de.heisluft.launcher.common.Util;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
 import java.text.SimpleDateFormat;

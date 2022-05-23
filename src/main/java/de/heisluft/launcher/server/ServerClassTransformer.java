@@ -1,6 +1,5 @@
 package de.heisluft.launcher.server;
 
-import de.heisluft.launcher.ClassicTweaker;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +18,6 @@ public class ServerClassTransformer implements IClassTransformer {
 
   private Logger logger = LogManager.getLogger("ServerClassTransformer");
 
-  @Override
   public byte[] transform(String name, String transformedName, byte[] basicClass) {
     if(!name.equals("com.mojang.minecraft.server.MinecraftServer")) return basicClass;
 

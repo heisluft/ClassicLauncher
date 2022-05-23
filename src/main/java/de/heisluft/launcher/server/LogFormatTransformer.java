@@ -17,7 +17,6 @@ public class LogFormatTransformer implements IClassTransformer {
 
   private Logger logger = LogManager.getLogger("LogFormatTransformer");
 
-  @Override
   public byte[] transform(String name, String transformedName, byte[] basicClass) {
     //Mappings may be unstable so we have to detect by inheritance
     ClassReader reader = new ClassReader(basicClass);

@@ -20,7 +20,6 @@ public class GameDirChanger implements IClassTransformer {
 
   private final Logger logger = LogManager.getLogger("GameDirChanger");
 
-  @Override
   public byte[] transform(final String name, final String transformedName, final byte[] bytes) {
     final ClassNode classNode = new ClassNode();
     final ClassReader classReader = new ClassReader(bytes);

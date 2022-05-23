@@ -15,7 +15,6 @@ public class URLTransformer implements IClassTransformer {
 
   private final Logger logger = LogManager.getLogger("URLTransformer");
 
-  @Override
   public byte[] transform(String s, String s1, byte[] bytes) {
     boolean dirty = false;
     ClassNode node = new ClassNode();

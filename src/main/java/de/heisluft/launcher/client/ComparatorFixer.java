@@ -22,7 +22,6 @@ public class ComparatorFixer implements IClassTransformer {
 
   private final Logger logger = LogManager.getLogger("ComparatorFixer");
 
-  @Override
   public byte[] transform(String name, String transformedName, byte[] basicClass) {
     ClassReader reader = new ClassReader(basicClass);
     ClassNode node = new ClassNode();
@@ -44,7 +43,7 @@ public class ComparatorFixer implements IClassTransformer {
     AbstractInsnNode invokeInsn = null;
     boolean iconstM1 = false;
     for(AbstractInsnNode ain : cmpNode.instructions) {
-      if(ain.getOpcode() == Opcodes.CHECKCAST && classDesc.isEmpty()) {
+      if(ain.getOpcode() == Opcodes.CHECKCAST && classDesc.length() == 0) {
         classDesc = ((TypeInsnNode) ain).desc;
       }
       if(ain.getOpcode() == Opcodes.GETFIELD) {
@@ -57,7 +56,7 @@ public class ComparatorFixer implements IClassTransformer {
       }
       if(ain.getOpcode() == Opcodes.ICONST_M1) iconstM1 = true;
     }
-    if(classDesc.isEmpty() || playerFieldGet == null|| invokeInsn == null) return basicClass;
+    if(classDesc.length() == 0 || playerFieldGet == null|| invokeInsn == null) return basicClass;
 
     logger.info("Fixing compare method of " + node.name);
 

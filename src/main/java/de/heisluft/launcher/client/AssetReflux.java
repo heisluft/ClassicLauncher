@@ -9,11 +9,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.util.ListIterator;
-
 /**
  * A coremod to restore the sound functionality of the classic versions.
  */
@@ -34,7 +29,6 @@ public class AssetReflux implements IClassTransformer {
 
   static final Logger LOGGER = LogManager.getLogger("AssetReflux");
 
-  @Override
   public byte[] transform(String name, String transformedName, byte[] basicClass) {
 
     ClassReader reader = new ClassReader(basicClass);

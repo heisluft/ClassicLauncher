@@ -1,6 +1,11 @@
 plugins {
   id "java"
+  id 'maven-publish'
+  id 'signing'
 }
+
+group 'de.heisluft.classiclaunch'
+version '1.0.0'
 
 repositories {
   mavenCentral()
@@ -9,7 +14,7 @@ repositories {
   }
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_6
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_5
 
 static def getOrCreate(SourceSetContainer container, String name) {
   try {
@@ -28,6 +33,20 @@ tasks.withType(JavaCompile) {
   options.encoding 'UTF-8'
 }
 
+jar {
+  from sourceSets.bootstrap.output
+  from sourceSets.common.output
+  dependsOn bootstrapClasses
+  dependsOn commonClasses
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  archiveClassifier.set 'sources'
+  from sourceSets.main.allSource
+  from sourceSets.bootstrap.allSource
+  from sourceSets.common.allSource
+}
+
 dependencies {
   implementation sourceSets.getByName('common').output
   bootstrapRuntimeOnly sourceSets.getByName('main').output
@@ -36,6 +55,51 @@ dependencies {
   implementation "org.ow2.asm:asm-tree:7.3.1"
   implementation "org.apache.logging.log4j:log4j-core:2.17.1"
   commonImplementation "org.apache.logging.log4j:log4j-core:2.17.1"
-  implementation "com.googlecode.json-simple:json-simple:1.3.0"
+  implementation "com.googlecode.json-simple:json-simple:1.4.0"
   implementation "net.minecraft:launchwrapper:1.12"
+}
+
+publishing {
+  repositories.maven {
+    url mavenUrl
+    credentials {
+      username = mavenUsername
+      password = mavenPassword
+    }
+    authentication.withType(BasicAuthentication)
+  }
+  publications.create('maven', MavenPublication) {
+    it.from components.getByName('java')
+    it.artifact sourcesJar
+    //unfortunately we need to stop gradle from including the rootProject as a dep. it could not be resolved anyway
+    it.pom.withXml {
+      it.asNode().dependencies.'*'.findAll() {
+        it.groupId.get(0).text() == ''
+      }.each() {
+        def fd = it.getClass().getDeclaredField("parent")
+        fd.setAccessible true
+        fd.get(it).remove(it)
+      }
+    }
+
+  }
+}
+// I wish that thing had an api so i would not have to resort to reflection to remove the dep, but well, here goes
+tasks.withType(GenerateModuleMetadata) {
+  doFirst {
+    def fd = GenerateModuleMetadata.getDeclaredField("inputState");
+    fd.setAccessible true
+    def deps = fd.get(it).get().moduleMetadataSpec.get().variants.get(1).dependencies
+    def toDelete = null
+    for (def d : deps) if (d.coordinates.group == '') {
+      toDelete = d
+      break
+    }
+    if (toDelete != null) deps.remove(toDelete)
+  }
+}
+
+signing {
+  useGpgCmd()
+  sign publishing.publications.maven
 }

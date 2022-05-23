@@ -1,7 +1,6 @@
 package de.heisluft.launcher.client;
 
 import de.heisluft.launcher.ClassicTweaker;
-import net.minecraft.launchwrapper.Launch;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 

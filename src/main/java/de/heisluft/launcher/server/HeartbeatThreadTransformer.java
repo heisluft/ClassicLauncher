@@ -1,13 +1,11 @@
 package de.heisluft.launcher.server;
 
-import de.heisluft.launcher.ClassicTweaker;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -19,7 +17,6 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 public class HeartbeatThreadTransformer implements IClassTransformer {
   private final Logger logger = LogManager.getLogger("HeartbeatThreadTransformer");
 
-  @Override
   public byte[] transform(String s, String s1, byte[] bytes) {
     ClassReader reader = new ClassReader(bytes);
     ClassNode node = new ClassNode();
