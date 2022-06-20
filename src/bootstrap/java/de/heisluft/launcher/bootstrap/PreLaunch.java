@@ -1,14 +1,6 @@
 package de.heisluft.launcher.bootstrap;
 
-import de.heisluft.launcher.common.Util;
 import net.minecraft.launchwrapper.Launch;
-import org.apache.logging.log4j.core.config.ConfigurationSource;
-import org.apache.logging.log4j.core.config.Configurator;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.logging.LogManager;
 
 /**
  * PreLaunch is a bootstrap class that can be used instead of calling Launch directly.
@@ -16,7 +8,7 @@ import java.util.logging.LogManager;
  * to call PreLaunch just with the --version arg and have gameDir, assetsDir and tweakClass inferred
  */
 public class PreLaunch {
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     // First, we check which options actually are present
     boolean hasTweakClass = false, hasAssetsDir = false, isServer = false; String gameDir = null;
     for(int i = 0; i < args.length; i++) {
@@ -65,19 +57,6 @@ public class PreLaunch {
       // finally, copy the original options over to newArgs
       System.arraycopy(args, 0, newArgs, difference, args.length);
     }
-    // After this newArgs is always fully populated
-
-    // Activate console colors
-    System.setProperty("log4j.skipJansi", "false");
-    // Modify log4j template to place logs inside the game directory
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    Util.copyStream(PreLaunch.class.getResourceAsStream("/log4j-template.xml"), bos, 4096);
-    byte[] transformed = bos.toString("utf-8").replace("${gameDir}", gameDir).getBytes("utf-8");
-    // Manually call configurator to ensure this config is used instead of the default launchwrapper config
-    Configurator.initialize(null, new ConfigurationSource(new ByteArrayInputStream(transformed)));
-    // Activate JUL bridge
-    LogManager.getLogManager().readConfiguration(PreLaunch.class.getResourceAsStream("/logging.properties"));
-
     // At last, call Launch
     Launch.main(newArgs);
   }

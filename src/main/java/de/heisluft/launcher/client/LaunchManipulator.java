@@ -1,7 +1,6 @@
 package de.heisluft.launcher.client;
 
 import de.heisluft.launcher.ClassicTweaker;
-import de.heisluft.launcher.common.Util;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +16,9 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -33,6 +34,34 @@ public class LaunchManipulator {
 
   private static final Logger LOGGER = LogManager.getLogger("LaunchManipulator");
 
+  /**
+   * Copies all bytes from is to os, using a buffer size of 4kb. It closes all streams
+   * afterwards. If one stream is null, this method closes the other stream if nonnull, returning
+   * without reading or writing
+   *
+   * @param is
+   *     the inputStream to be read from
+   * @param os
+   *     the outputStream to be written to
+   *
+   * @throws IOException
+   *     if a reading, writing or closing operation fails
+   */
+  private static void copyStream(InputStream is, OutputStream os) throws IOException {
+    if(is == null || os == null) {
+      if(os != null) os.close();
+      if(is != null) is.close();
+      return;
+    }
+    byte[] buf = new byte[4096];
+    int lastRead;
+    while((lastRead = is.read(buf)) != -1) {
+      os.write(buf, 0, lastRead);
+    }
+    is.close();
+    os.close();
+  }
+
   private static void setupLibraries() throws IOException {
     File libsDir = new File(ClassicTweaker.minecraftHome, "libs");
     if(!libsDir.isDirectory()) libsDir.mkdirs();
@@ -43,7 +72,7 @@ public class LaunchManipulator {
     if(children.length < natives.fileCount){
       for(URL url : natives.getURLs()) {
         String urlString = url.toString();
-        Util.copyStream(url.openStream(), new FileOutputStream(new File(libsDir, urlString.substring(urlString.lastIndexOf('/')))), 4096);
+        copyStream(url.openStream(), new FileOutputStream(new File(libsDir, urlString.substring(urlString.lastIndexOf('/')))));
       }
     }
     String libspath = libsDir.getAbsolutePath();

@@ -1,6 +1,6 @@
 package de.heisluft.launcher.server;
 
-import de.heisluft.launcher.common.Util;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
 import java.text.SimpleDateFormat;
@@ -22,7 +22,7 @@ public class JulLog4jProxy {
       }
     }
     if(invokedByConsoleHandler) {
-      LogManager.getLogger(record.getLoggerName()).log(Util.jul2log4j(record.getLevel()), record.getMessage());
+      LogManager.getLogger(record.getLoggerName()).log(jul2log4j(record.getLevel()), record.getMessage());
       return "";
     }
     java.util.logging.Level var3 = record.getLevel();
@@ -38,5 +38,21 @@ public class JulLog4jProxy {
     return var2 + "  " + FMT.format(record.getMillis()) + "  " + record.getMessage() + "\n";
   }
 
-
+  /**
+   * Converts a JUL Level to its Corresponding Log4j level
+   *
+   * @param level
+   *     the JUL Level
+   *
+   * @return the corresponding Log4j level
+   */
+  public static Level jul2log4j(java.util.logging.Level level) {
+    if(level == java.util.logging.Level.SEVERE) return Level.ERROR;
+    if(level == java.util.logging.Level.WARNING) return Level.WARN;
+    if(level == java.util.logging.Level.INFO) return Level.INFO;
+    if(level == java.util.logging.Level.CONFIG) return Level.INFO;
+    if(level == java.util.logging.Level.FINE) return Level.DEBUG;
+    if(level == java.util.logging.Level.ALL) return Level.ALL;
+    return Level.TRACE;
+  }
 }
