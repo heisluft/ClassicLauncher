@@ -14,12 +14,12 @@ repositories {
   }
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_5
-
 sourceSets.maybeCreate('bootstrap')
 configurations.getByName('bootstrapImplementation').extendsFrom(configurations.getByName('implementation'))
+configurations.getByName('implementation').exclude('group': 'com.mojang', 'module': 'minecraft-assets')
 
 tasks.withType(JavaCompile) {
+  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
   options.encoding 'UTF-8'
 }
 
@@ -38,9 +38,10 @@ dependencies {
   bootstrapRuntimeOnly sourceSets.getByName('main').output
   runtimeOnly "org.fusesource.jansi:jansi:2.4.0"
   implementation rootProject
-  implementation "org.ow2.asm:asm-tree:7.3.1"
+  implementation "org.ow2.asm:asm-tree:9.3"
   implementation "org.apache.logging.log4j:log4j-core:2.17.1"
-  implementation "com.googlecode.json-simple:json-simple:1.4.0"
+  implementation 'net.sf.jopt-simple:jopt-simple:5.0.5'
+  implementation 'com.googlecode.json-simple:json-simple:1.4.1'
   implementation "net.minecraft:launchwrapper:1.13.2"
 }
 
